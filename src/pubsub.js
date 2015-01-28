@@ -1,7 +1,9 @@
 var http = require('http');
 
 //TODO: criar servidor de escuta a requisições
-
+/**
+ * Structure
+ */
 var subscribers = [];
 var subscribeds = [];
 
@@ -27,15 +29,9 @@ exports.subscribe = function(){
 
 /**
  * Unsubscribe from the selected source
+ * @param {String} [from] - The adress to unsubscribe
  */
 exports.unsubscribe = function(){
-	
-}
-
-/**
- * Recive subscription from another entity
- */
-exports.reciveSubscription = function(){
 	
 }
 

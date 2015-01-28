@@ -26,3 +26,12 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# Windows files
+Thumbs.db
+
+# Office files
+*.vsdx
+*.pptx
+*.docx
+*.xlsx
