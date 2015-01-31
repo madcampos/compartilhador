@@ -1,11 +1,16 @@
 Estrutura da rede
 ===
 
-Servidores
+Supser servidor
 ---
 
 1. Um `super servidor` que tem somente a função de manter a lista de `servidores` atualizada. Qualquer parte que requeira esta lista deve requerer ao `super servidor`.
-2. `Servidores` que mantem a lista de arquivos sincronizada entre eles e envia somente o diff da lista para os outros `servidores`, com o arquivo (nome e md5) e os usuários que possuem ele
+2. `servidores` que desejem conectar devem fornecer uma chave unica de identificação para se autenticar ao `super servidor`.
+
+Servidor
+---
+
+1. `Servidores` que mantem a lista de arquivos sincronizada entre eles e envia somente o diff da lista para os outros `servidores`, com o arquivo (nome e md5) e os usuários que possuem ele
 
 Cliente
 ---

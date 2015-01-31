@@ -11,8 +11,6 @@ As técnicas para realizar isso são chamadas de [`hole punching`](http://en.wik
 	- https://github.com/TooTallNate/node-nat-pmp
 3. ICE
 	- https://www.npmjs.com/package/zeroc-icejs
-	- https://www.npmjs.com/package/rtcpeerconnection
-	- http://simplewebrtc.com/
 	- https://www.npmjs.com/package/libnice
 4. TeleHash
 	- https://github.com/mnaamani/node-telehash
@@ -23,3 +21,5 @@ As técnicas para realizar isso são chamadas de [`hole punching`](http://en.wik
 	- https://github.com/js-platform/node-webrtc
 	- https://www.npmjs.com/package/skyrtc
 	- https://www.npmjs.com/package/easyrtc
+	- https://www.npmjs.com/package/rtcpeerconnection
+	- http://simplewebrtc.com/

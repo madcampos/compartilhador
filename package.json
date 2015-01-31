@@ -1,30 +1,46 @@
 {
-	"name": "compartilhador",
-	"version": "1.1.0",
-	"description": "Compartilhador de arquivos para o trabalho de Sistemas Distribuidos",
-	"keywords": [
-		"distributed",
-		"file share",
-		"p2p"
-	],
-	"author": "Marco Aurélio Dilda Campos <madcampos@outlook.com>",
-	"contributors": [
-		{"name": "Weinne Santos", "email": "weinnewillan@gmail.com"},
-		{"name": "Julian Rodrigues", "email": "julianfdr@gmail.com"},
-		{"name": "Arthur Messi Freitas", "email": "arthurmessi@gmail.com"},
-		{"name": "Pedro Figueiredo Reis", "email": "pedro.figueiredo.reis@gmail.com"}
-	],
-	"license": "MIT",
-	"main": "app.js",
-	"scripts": {
-		"start": "node app.js --harmony"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/madcampos/compartilhador"
-	},
-	"bugs": {
-		"url": "https://github.com/madcampos/compartilhador/issues"
-	},
-	"private": true
+  "name": "compartilhador",
+  "version": "1.1.0",
+  "description": "Compartilhador de arquivos para o trabalho de Sistemas Distribuidos",
+  "keywords": [
+    "distributed",
+    "file share",
+    "p2p"
+  ],
+  "author": "Marco Aurélio Dilda Campos <madcampos@outlook.com>",
+  "contributors": [
+    {
+      "name": "Weinne Santos",
+      "email": "weinnewillan@gmail.com"
+    },
+    {
+      "name": "Julian Rodrigues",
+      "email": "julianfdr@gmail.com"
+    },
+    {
+      "name": "Arthur Messi Freitas",
+      "email": "arthurmessi@gmail.com"
+    },
+    {
+      "name": "Pedro Figueiredo Reis",
+      "email": "pedro.figueiredo.reis@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js --harmony"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/madcampos/compartilhador"
+  },
+  "bugs": {
+    "url": "https://github.com/madcampos/compartilhador/issues"
+  },
+  "private": true,
+  "dependencies": {
+    "colors": "^1.0.3",
+    "connect": "^3.3.4"
+  }
 }
