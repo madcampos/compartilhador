@@ -1,43 +1,120 @@
-/*jshint browser:false, node:true*/
+/*jshint node:true, devel:true*/
 'use strict';
+let colors = require('colors');
+
+colors.setTheme({
+	silly: 'rainbow',
+	input: 'grey',
+	verbose: 'cyan',
+	prompt: 'grey',
+	info: 'green',
+	data: 'grey',
+	help: 'cyan',
+	warn: 'yellow',
+	debug: 'blue',
+	error: 'red'
+});
 
 const PORT = 1337;
 const MAX_SERVERS = 1024;
 
-var express = require('express');
-var app = express();
-var colors = require('colors');
+let app = require('express')();
+let bodyParser = require('body-parser');
 
-var servers = [MAX_SERVERS];
+let servers = (function(){
+	let serverList = [];
+	
+	return {
+		list: function(){
+			return serverList;
+		},
+		add: function(server){
+			let index = serverList.findIndex(function(el){
+				return el.address === server.address;
+			});
+			
+			if (serverList.length <= MAX_SERVERS) {
+				if (index === -1) {
+					serverList.push(server);
+				} else {
+					return Error('Server alredy revistered.');
+				}
+			} else {
+				return new Error('Max server limit.');
+			}
+			
+			return true;
+		},
+		remove: function(server){
+			let index = serverList.findIndex(function(el){
+				return el.address === server.address;
+			});
+			
+			if (index !== -1) {
+				serverList.splice(index, 1);
+			} else {
+				return Error('Server not registered.');
+			}
+			
+			return true;
+		}
+	};
+})();
 
-var validate = require('./src/validate.js');
+let validate = require('./src/validate.js');
+
+app.use(bodyParser.json());
 
 app.get('/', function(req, res){
-	//TODO: send server list
+	res.json(servers.list());
 });
 
-app.post('/register', function(req, res){
-	//TODO: get post data containing hash and negotiate association
-});
+function register(req, res){
+	if (req.body && req.body.address && req.body.key && req.body.region && req.body.metadata) {
+		if (validate(req.body.key)) {
+			let errorMessage;
+			switch (req.body.intent) {
+				case 'register':
+					errorMessage = servers.add({
+						'address': req.body.address,
+						'region': req.body.region,
+						'metadata': req.body.metadata
+					});
+					break;
+				case 'unregister':
+					errorMessage = servers.remove({
+						'address': req.body.address,
+						'region': req.body.region,
+						'metadata': req.body.metadata
+					});
+					break;
+				default:
+					errorMessage = 'Operation unknown.';
+					break;
+			}
+			if (errorMessage instanceof Error) {
+				res.status(400).send(errorMessage);
+			} else {
+				res.status(200).end();
+			}
+		} else {
+			res.status(401).end();
+		}
+	}
+	
+	res.status(400).end();
+}
 
-app.post('/unregister', function(req, res){
-	//TODO: get post data containig hash and deassociate updating list of servers
-});
+app.post('/register', register);
+app.put('/server', register);
 
-app.put('/server', function(req, res){
-	//TODO: validate admin hash and save new server
-});
+app.post('/unregister', register);
+app.delete('/server', register);
 
-app.delete('/server', function(req, res){
-	//TODO: validate admin and remove server
-});
-
-app.on('listening', function(){
-	console.log('[%s] Server listening to port %d'.green, new Date().toISOString(), PORT);
+app.listen(PORT, function(){
+	console.log('[%s] Server listening to port %d'.info, new Date().toISOString(), PORT);
 });
 
 app.on('error', function(e){
-	console.log('[%s] Server error:\n'.red.bold + e.toString().red, new Date().toISOString());
+	console.log('[%s] Server error:\n'.error + e.toString().data, new Date().toISOString());
 });
-
-app.listen(PORT);

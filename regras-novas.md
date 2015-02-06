@@ -79,5 +79,27 @@ Entradas de clientes conectados ao servidor
 	"server": "<Endereço do servidor>",
 	"files": ["<MD5 hash>"]
 }
-
+```
 O cache de clientes atualiza por blocos a cada minuto (?)
+
+Entradas de servidores conectados ao super-servidor
+---
+```json
+{
+	"address": "<Endereço do servidor>",
+	"region": "<Região do servidor>",
+	"metadata": ["<Flags do servidor>"]
+}
+```
+
+Mensagem de conexão com o super-servidor
+---
+```json
+{
+	"address": "<Endereço do servidor>",
+	"key": "<Chave de autenticação do servidor>",
+	"region': "<Região do servidor>",
+	"intent": "<Intenção do servidor>",
+	"metadata": ["<Flags do servidor>"]
+}
+```

@@ -40,7 +40,8 @@
   },
   "private": true,
   "dependencies": {
+    "body-parser": "^1.11.0",
     "colors": "^1.0.3",
-    "connect": "^3.3.4"
+    "express": "^4.11.2"
   }
 }
