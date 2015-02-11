@@ -1,6 +1,7 @@
 /*jshint node:true, devel:true*/
 'use strict';
 let colors = require('colors');
+let entity = 'super-server'
 
 colors.setTheme({
 	silly: 'rainbow',
@@ -21,51 +22,21 @@ const MAX_SERVERS = 1024;
 let app = require('express')();
 let bodyParser = require('body-parser');
 
-let servers = (function(){
-	let serverList = [];
-	
-	return {
-		list: function(){
-			return serverList;
-		},
-		add: function(server){
-			let index = serverList.findIndex(function(el){
-				return el.address === server.address;
-			});
-			
-			if (serverList.length <= MAX_SERVERS) {
-				if (index === -1) {
-					serverList.push(server);
-				} else {
-					return Error('Server alredy revistered.');
-				}
-			} else {
-				return new Error('Max server limit.');
-			}
-			
-			return true;
-		},
-		remove: function(server){
-			let index = serverList.findIndex(function(el){
-				return el.address === server.address;
-			});
-			
-			if (index !== -1) {
-				serverList.splice(index, 1);
-			} else {
-				return Error('Server not registered.');
-			}
-			
-			return true;
-		}
-	};
-})();
+let servers = require('./src/peerList')(MAX_SERVERS, 'Server');
 
-let validate = require('./src/validate.js');
+let validate = require('./src/validate');
 
 app.use(bodyParser.json());
+app.disable('x-powered-by');
+app.disable('etag');
+
+app.all(function(req, res, next){
+	res.header('Connection', 'Close');
+	next();
+});
 
 app.get('/', function(req, res){
+	console.log(req.rawHeaders);
 	res.json(servers.list());
 });
 
@@ -112,9 +83,9 @@ app.post('/unregister', register);
 app.delete('/server', register);
 
 app.listen(PORT, function(){
-	console.log('[%s] Server listening to port %d'.info, new Date().toISOString(), PORT);
+	console.log('[%s] %s listening to port %d'.info, new Date().toISOString(), entity, PORT);
 });
 
 app.on('error', function(e){
-	console.log('[%s] Server error:\n'.error + e.toString().data, new Date().toISOString());
+	console.log('[%s] %s error:\n%s'.error, new Date().toISOString(), entity, e);
 });
