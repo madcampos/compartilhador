@@ -1,5 +1,8 @@
 /*jshint node:true, devel:true*/
 'use strict';
+const PORT = 1337;
+const MAX_SERVERS = 1024;
+
 let colors = require('colors');
 let entity = 'super-server'
 
@@ -15,9 +18,6 @@ colors.setTheme({
 	debug: 'blue',
 	error: 'red'
 });
-
-const PORT = 1337;
-const MAX_SERVERS = 1024;
 
 let app = require('express')();
 let bodyParser = require('body-parser');

@@ -2,6 +2,8 @@
 'use strict';
 let peersList = [];
 module.exports =  function(maxPeers, peerType){
+	peerType = peerType || 'Peer';
+	
 	return {
 		list: function(){
 			return peersList;
