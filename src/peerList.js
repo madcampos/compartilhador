@@ -3,6 +3,7 @@
 let peersList = [];
 module.exports =  function(maxPeers, peerType){
 	peerType = peerType || 'Peer';
+	maxPeers = maxPeers || 1024;
 	
 	return {
 		list: function(){

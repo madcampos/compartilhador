@@ -5,21 +5,14 @@ const MAX_CLIENTS = 1024;
 const SERVER_UPDATE_TIMER = 1000 * 60 * 15 //15min
 const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3 //3min
 
-let colors = require('colors');
+let console = require('better-console');
 let entity = 'server';
 
-colors.setTheme({
-	silly: 'rainbow',
-	input: 'grey',
-	verbose: 'cyan',
-	prompt: 'grey',
-	info: 'green',
-	data: 'grey',
-	help: 'cyan',
-	warn: 'yellow',
-	debug: 'blue',
-	error: 'red'
-});
+let ownClients = require('./src/peerList');
+let otherClients = require('./src/peerList');
+
+let localCache = [];
+let externalCache = [];
 
 let app = require('express')();
 let bodyParser = require('body-parser');
@@ -28,8 +21,35 @@ app.use(bodyParser.json());
 app.disable('x-powered-by');
 app.disable('etag');
 
-app.get('/connect', function(req, res){
+app.post('/connect', function(req, res){
 	//TODO: Client connect
+	if (req.body && req.body.address && req.body.files) {
+		let errorMessage = ownClients.add({
+			address: req.body.address, //UPnP Address
+			server: req.ip,
+			files: req.body.files
+		});
+		if (errorMessage instanceof Error) {
+			res.status(400).send(errorMessage);
+		} else {
+			res.status(200).end();
+		}
+	} else {
+		res.status(400).end();
+	}
+});
+
+app.post('/disconect', function(req, res){
+	if (req.body && req.body.address) {
+		let errorMessage = ownClients.remove({address: req.body.address});
+		if (errorMessage instanceof Error) {
+			res.status(400).send(errorMessage);
+		} else {
+			res.status(200).end();
+		}
+	} else {
+		res.status(400).end();
+	}
 });
 
 app.post('/update/:server/:key',function(req, res){
@@ -47,9 +67,9 @@ app.post('/update/:server/:key',function(req, res){
  */
 
 app.listen(PORT, function(){
-	console.log('[%s] %s listening to port %d'.info, new Date().toISOString(), entity, PORT);
+	console.info('[%s] %s listening to port %d', new Date().toISOString(), entity, PORT);
 });
 
 app.on('error', function(e){
-	console.log('[%s] %s error:\n%s'.error, new Date().toISOString(), entity, e);
+	console.error('[%s] %s error:\n%s', new Date().toISOString(), entity, e);
 });

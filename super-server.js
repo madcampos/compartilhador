@@ -2,22 +2,11 @@
 'use strict';
 const PORT = 1337;
 const MAX_SERVERS = 1024;
+const SERVER_UPDATE_TIMER = 1000 * 60 * 15 //15min
+const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3 //3min
 
-let colors = require('colors');
+let console = require('better-console');
 let entity = 'super-server'
-
-colors.setTheme({
-	silly: 'rainbow',
-	input: 'grey',
-	verbose: 'cyan',
-	prompt: 'grey',
-	info: 'green',
-	data: 'grey',
-	help: 'cyan',
-	warn: 'yellow',
-	debug: 'blue',
-	error: 'red'
-});
 
 let app = require('express')();
 let bodyParser = require('body-parser');
@@ -77,15 +66,13 @@ function register(req, res){
 }
 
 app.post('/register', register);
-app.put('/server', register);
 
 app.post('/unregister', register);
-app.delete('/server', register);
 
 app.listen(PORT, function(){
-	console.log('[%s] %s listening to port %d'.info, new Date().toISOString(), entity, PORT);
+	console.info('[%s] %s listening to port %d', new Date().toISOString(), entity, PORT);
 });
 
 app.on('error', function(e){
-	console.log('[%s] %s error:\n%s'.error, new Date().toISOString(), entity, e);
+	console.error('[%s] %s error:\n%s', new Date().toISOString(), entity, e);
 });

@@ -75,7 +75,7 @@ Entradas de clientes conectados ao servidor
 
 ```json
 {
-	"id": "<ID do cliente>",
+	"address": "<Endereço do cliente>",
 	"server": "<Endereço do servidor>",
 	"files": ["<MD5 hash>"]
 }

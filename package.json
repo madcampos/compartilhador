@@ -40,8 +40,10 @@
   },
   "private": true,
   "dependencies": {
+    "better-console": "^0.2.3",
     "body-parser": "^1.11.0",
     "colors": "^1.0.3",
-    "express": "^4.11.2"
+    "express": "^4.11.2",
+    "nat-upnp": "^0.2.11"
   }
 }
