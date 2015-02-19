@@ -36,3 +36,6 @@ Thumbs.db
 *.pptx
 *.docx
 *.xlsx
+
+#TODO file
+todo.md
