@@ -4,12 +4,14 @@ const PORT = 1337;
 const MAX_CLIENTS = 1024;
 const SERVER_UPDATE_TIMER = 1000 * 60 * 15 //15min
 const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3 //3min
+const SUPER_SERVER = '';
 
 let console = require('better-console');
 let entity = 'server';
 
-let ownClients = require('./src/peerList');
-let otherClients = require('./src/peerList');
+let ownClients = require('./src/peerList'); //TODO: use other structure
+let otherClients = []; //TODO: use better structure
+let servers = []; //TODO: use better structure
 
 let localCache = [];
 let externalCache = [];
@@ -65,6 +67,8 @@ app.post('/update/:server/:key',function(req, res){
  * merged list of clients: send to frontend on request for update
  * one server knows all the others and manteins one list from them but don't have direct access to the files or clients connected to them
  */
+
+//TODO: get server list from super server
 
 app.listen(PORT, function(){
 	console.info('[%s] %s listening to port %d', new Date().toISOString(), entity, PORT);
