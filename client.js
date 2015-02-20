@@ -1,20 +1,31 @@
 /*jshint node:true, devel:true*/
+/*global querystring*/
 'use strict';
-const PORT = 1337;
+const PUBLIC_PORT = 13337;
+const PRIVATE_PORT = 73331;
 const FILE_PART_SIZE = 32 * 1024; //32kb
 
-const SUPER_SERVER = '';
-const SUPER_SERVER_PORT = 1337;
+let superServer = {
+	hostname: 'localhost',
+	port: 1337
+};
 
 let console = require('better-console');
+
 let entity = 'client';
-let fs = require('fs');
+
+let http = require('http');
 let upnp = require('nat-upnp').createClient();
 let externalIp;
+let client = {
+	externalIp: undefined,
+	fileList: []
+};
+let server;
 
 upnp.portMapping({
-	public: PORT,
-	private: PORT,
+	public: PUBLIC_PORT,
+	private: PRIVATE_PORT,
 	ttl: 10
 }, function(err) {
 	if (err) {
@@ -27,34 +38,53 @@ upnp.portMapping({
 			} else {
 				externalIp = ip;
 				console.info('UPnP ip is: %s', externalIp);
-				
+				console.info('Starting connection to server...');
+				connectToServer();
 			}
 		});
 	}
 });
 
-//TODO: get server list from super server
-//TODO: connect to a server based on heuristics
-function connectToServer(serverList){
+function connectToServer(){
+	server = require('url').parse(require('./serc/chooseServer')(retriveServerList()), false);
 	
-}
-
-function retriveServerList(){
+	let msg = querystring.stringify({
+		address: client.externalIp,
+		files: client.fileList
+	});
 	
 	let opt = {
-		host: SUPER_SERVER,
-		port: SUPER_SERVER_PORT,
+		host: server.hostname,
+		port: server.port,
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'Content-Length': postData.length
+			'Content-Length': msg.length
 		}
 	};
-	let req = http.request(opt, function(res){
-		//TODO: querystring.stringify body
-	});
 	
+	let req = http.request(opt);
+	req.write(msg);
+	req.end();
+
 	req.on('error', function(err){
+		console.error('Server connect error: %s', err.message);
+	});
+}
+
+function retriveServerList(){
+	http.get({host: superServer.hostname, port: superServer.port}, function(res){
+		let data = '';		
+		res.setEncoding('utf8');
+		
+		res.on('data', function(chunk){
+			data += chunk;
+		});
+		
+		res.on('end', function(){
+			return data;
+		});
+	}).on('error', function(err){
 		console.error('Server list request error: %s', err.message);
 	});
 }

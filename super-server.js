@@ -2,11 +2,11 @@
 'use strict';
 const PORT = 1337;
 const MAX_SERVERS = 1024;
-const SERVER_UPDATE_TIMER = 1000 * 60 * 15 //15min
-const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3 //3min
+const SERVER_UPDATE_TIMER = 1000 * 60 * 15; //15min
+const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3; //3min
 
 let console = require('better-console');
-let entity = 'super-server'
+let entity = 'super-server';
 
 let app = require('express')();
 let bodyParser = require('body-parser');
@@ -30,7 +30,6 @@ app.get('/', function(req, res){
 });
 
 function register(req, res){
-	console.log(req.body);
 	if (req.body && req.body.address && req.body.key && req.body.intent) {
 		if (validate(req.body.key)) {
 			let errorMessage;
@@ -58,6 +57,7 @@ function register(req, res){
 			} else {
 				res.status(200);
 			}
+			console.log(servers.list());
 			res.send(errorMessage.toString());
 		} else {
 			res.status(401).end();
