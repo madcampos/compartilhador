@@ -2,7 +2,9 @@
 'use strict';
 const PORT = 1337;
 const FILE_PART_SIZE = 32 * 1024; //32kb
+
 const SUPER_SERVER = '';
+const SUPER_SERVER_PORT = 1337;
 
 let console = require('better-console');
 let entity = 'client';
@@ -11,8 +13,8 @@ let upnp = require('nat-upnp').createClient();
 let externalIp;
 
 upnp.portMapping({
-	public: 12345,
-	private: 54321,
+	public: PORT,
+	private: PORT,
 	ttl: 10
 }, function(err) {
 	if (err) {
@@ -38,13 +40,18 @@ function connectToServer(serverList){
 }
 
 function retriveServerList(){
+	
 	let opt = {
 		host: SUPER_SERVER,
-		port: 1337,
-		method: 'POST'
+		port: SUPER_SERVER_PORT,
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Content-Length': postData.length
+		}
 	};
 	let req = http.request(opt, function(res){
-		
+		//TODO: querystring.stringify body
 	});
 	
 	req.on('error', function(err){

@@ -32,12 +32,13 @@ app.post('/connect', function(req, res){
 			files: req.body.files
 		});
 		if (errorMessage instanceof Error) {
-			res.status(400).send(errorMessage);
+			res.status(400);
 		} else {
-			res.status(200).end();
+			res.status(200);
 		}
+		res.send(errorMessage.toString());
 	} else {
-		res.status(400).end();
+		res.status(400).send('Bad parameters.');
 	}
 });
 
@@ -45,12 +46,13 @@ app.post('/disconect', function(req, res){
 	if (req.body && req.body.address) {
 		let errorMessage = ownClients.remove({address: req.body.address});
 		if (errorMessage instanceof Error) {
-			res.status(400).send(errorMessage);
+			res.status(400);
 		} else {
-			res.status(200).end();
+			res.status(200);
 		}
+		res.send(errorMessage.toString());
 	} else {
-		res.status(400).end();
+		res.status(400).send('Bad parameters.');
 	}
 });
 

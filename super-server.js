@@ -16,6 +16,7 @@ let servers = require('./src/peerList')(MAX_SERVERS, 'Server');
 let validate = require('./src/validate');
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 app.disable('x-powered-by');
 app.disable('etag');
 
@@ -25,27 +26,27 @@ app.all(function(req, res, next){
 });
 
 app.get('/', function(req, res){
-	console.log(req.rawHeaders);
 	res.json(servers.list());
 });
 
 function register(req, res){
-	if (req.body && req.body.address && req.body.key && req.body.region && req.body.metadata) {
+	console.log(req.body);
+	if (req.body && req.body.address && req.body.key && req.body.intent) {
 		if (validate(req.body.key)) {
 			let errorMessage;
 			switch (req.body.intent) {
 				case 'register':
 					errorMessage = servers.add({
 						'address': req.body.address,
-						'region': req.body.region,
-						'metadata': req.body.metadata
+						'region': req.body.region || '',
+						'metadata': req.body.metadata || []
 					});
 					break;
 				case 'unregister':
 					errorMessage = servers.remove({
 						'address': req.body.address,
-						'region': req.body.region,
-						'metadata': req.body.metadata
+						'region': req.body.region || '',
+						'metadata': req.body.metadata || []
 					});
 					break;
 				default:
@@ -53,16 +54,17 @@ function register(req, res){
 					break;
 			}
 			if (errorMessage instanceof Error) {
-				res.status(400).send(errorMessage);
+				res.status(400);
 			} else {
-				res.status(200).end();
+				res.status(200);
 			}
+			res.send(errorMessage.toString());
 		} else {
 			res.status(401).end();
 		}
+	} else {
+		res.status(400).send('Bad parameters.');
 	}
-	
-	res.status(400).end();
 }
 
 app.post('/register', register);

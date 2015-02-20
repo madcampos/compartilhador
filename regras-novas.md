@@ -103,3 +103,17 @@ Mensagem de conexão com o super-servidor
 	"metadata": ["<Flags do servidor>"]
 }
 ```
+
+Mensagem de conexão do cliente com o servidor
+---
+```json
+{
+	"address": "<Endereço UPnP do cliente>",
+	"files": [{
+		"name": "<File name>",
+		"hash": "<File hash>",
+		"parts": ["<Parts hash>"],
+		"partSize" : <Tamanho das partes>
+	}]
+}
+```

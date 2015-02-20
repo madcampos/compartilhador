@@ -13,8 +13,7 @@ module.exports =  function(maxPeers, peerType){
 			let index = peersList.findIndex(function(el){
 				return el.address === peer.address;
 			});
-
-			if (peersList.length <= maxPeers) {
+			if (peersList.length < maxPeers) {
 				if (index === -1) {
 					peersList.push(peer);
 				} else {
@@ -24,7 +23,7 @@ module.exports =  function(maxPeers, peerType){
 				return new Error('Max connections limit reached.');
 			}
 
-			return true;
+			return `${peerType} registered sucessfully.`;
 		},
 		remove: function(peer){
 			let index = peersList.findIndex(function(el){
@@ -37,7 +36,7 @@ module.exports =  function(maxPeers, peerType){
 				return Error(peerType + ' not registered.');
 			}
 
-			return true;
+			return `${peerType} unregistered sucessfully.`;
 		}
 	};
 };
