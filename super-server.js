@@ -27,6 +27,7 @@ app.all(function(req, res, next){
 });
 
 app.get('/', function(req, res){
+	console.log('Sending server list.');
 	res.json(servers.list());
 });
 
@@ -41,9 +42,11 @@ function register(req, res){
 						'region': req.body.region || '',
 						'metadata': req.body.metadata || []
 					});
+					console.log('Register:\n%s', req.body);
 					break;
 				case 'unregister':
 					errorMessage = servers.remove({'address': req.body.address});
+					console.log('Unregister:\n%s', req.body);
 					break;
 				default:
 					errorMessage = 'Operation unknown.';

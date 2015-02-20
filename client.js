@@ -9,6 +9,13 @@ const FILES_FOLDER = path.join(process.env.HOME, '/compartilhador');
 let fs = require('fs');
 let crypto = require('crypto');
 
+let app = require('express')();
+let bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.disable('x-powered-by');
+app.disable('etag');
+
 let superServer = {
 	hostname: 'localhost',
 	port: 1337
@@ -34,7 +41,7 @@ let server;
 upnp.portMapping({
 	public: PUBLIC_PORT,
 	private: PRIVATE_PORT,
-	ttl: 10
+	ttl: 1024
 }, function(err) {
 	if (err) {
 		console.error('UPnP Port Mapping error: %s', err);
@@ -58,6 +65,9 @@ upnp.portMapping({
 						client.localIp = mapping.private.host;
 						
 						console.info('%s UPnP address is: %s:%s (%s:%s)', entity, client.externalIp, client.externalPort, client.localIp, client.localIp);
+						app.listen(client.localPort, function(){
+							console.info('%s listening to local port at: %s', entity, client.localPort);
+						});
 						listFiles(connectToServer);
 					}
 				});
@@ -94,6 +104,7 @@ function listFiles(next){
 		});
 		
 		console.info('Hashing done.');
+		console.log(client.fileList);
 		next();
 	});
 }
@@ -142,9 +153,25 @@ function retrieveServerList(){
 		
 		res.on('end', function(){
 			console.info('Got server list.');
+			console.log(data);
 			return data;
 		});
 	}).on('error', function(err){
 		console.error('Server list request error: %s', err.message);
 	});
 }
+
+app.get('/', function(req, res){
+	if (req.body && req.body.hash && req.body.part) {
+		//TODO: handle file request
+		let file = client.fileList.find(function(el){
+			return el.hash === req.body.hash;
+		});
+		
+		res.send(file.buffer.toString('base64',req.body.part * FILE_PART_SIZE, req.body.part * FILE_PART_SIZE + FILE_PART_SIZE));
+	}
+});
+
+app.on('error', function(e){
+	console.error('%s error:\n%s', entity, e);
+});

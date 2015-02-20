@@ -3,7 +3,6 @@
 const PORT = 1338;
 const MAX_CLIENTS = 1024;
 const SERVER_UPDATE_TIMER = 1000 * 60 * 15; //15min
-const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3; //3min
 const REGION = 'default';
 const ADDRESS = require('dns').lookup(require('os').hostname(), function(err, addr){ return addr; });
 
@@ -13,20 +12,18 @@ let console = require('better-console');
 /*jshint +W079*/
 let entity = 'server';
 
-let ownClients = require('./src/peerList'); //TODO: use other structure
-let otherClients = []; //TODO: use better structure
+let ownClients = require('./src/peerList')(MAX_CLIENTS, 'Client');
+let otherClients = require('./src/peerList')(Infinity, 'Client');
 let servers = [];
-
-let localCache = [];
-let externalCache = [];
 
 let app = require('express')();
 let bodyParser = require('body-parser');
-let clients = require('./src/peerList')(MAX_CLIENTS, 'Client');
 let superServer = {
 	hostname: 'localhost',
 	port: 1337
 };
+
+let serverUpdateTimer;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -34,7 +31,6 @@ app.disable('x-powered-by');
 app.disable('etag');
 
 app.post('/connect', function(req, res){
-	//TODO: Client connect
 	if (req.body && req.body.address && req.body.files) {
 		let errorMessage = ownClients.add({
 			address: req.body.address,
@@ -43,6 +39,7 @@ app.post('/connect', function(req, res){
 		});
 		if (errorMessage instanceof Error) {
 			res.status(400);
+			console.log('Client connected');
 		} else {
 			res.status(200);
 		}
@@ -67,17 +64,42 @@ app.post('/disconect', function(req, res){
 });
 
 app.post('/update',function(req, res){
-	//TODO: handle updates from other servers
+	if (req.body) {
+		req.body.forEach(function(el){
+			otherClients.add(el);
+		});
+	}
 });
 
-//TODO: send updates to servers based on locally keeped list of changes, than consolidate with other changes
-/*
- * list of clients and their data: update and send diff
- * list of forigin clients with their data: recive diff and path
- * list of servers: broadcast to with diff from connected clients
- * merged list of clients: send to frontend on request for update
- * one server knows all the others and manteins one list from them but don't have direct access to the files or clients connected to them
- */
+function updateServers(){
+	let msg = JSON.stringify({
+		address: `${ADDRESS}:${PORT}`,
+		region: REGION,
+		clients: ownClients.list()
+	});
+	
+	servers.forEach(function(el){
+		let addr = require('url').parse(`http://${el.address}`);
+		
+		let opt = {
+			host: addr.hostname,
+			port: addr.port,
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Content-Length': msg.length
+			}
+		};
+		
+		let req = http.request(opt);
+		req.write(msg);
+		req.end();
+		
+		req.on('error', function(err){
+			console.error('Server update error: %s', err.message);
+		});
+	});
+}
 
 function connectToSuperServer(){
 	let msg = JSON.stringify({
@@ -120,7 +142,6 @@ function retrieveServerList(){
 		});
 
 		res.on('end', function(){
-			//TODO: make update to servers variable;
 			JSON.parse(data).forEach(function(el){
 				if (!servers.includes(el)) {
 					servers.push(el);
@@ -134,6 +155,9 @@ function retrieveServerList(){
 
 app.listen(PORT, function(){
 	console.info('[%s] %s listening to port %d', new Date().toISOString(), entity, PORT);
+	connectToSuperServer();
+	retrieveServerList();
+	serverUpdateTimer = setInterval(updateServers, SERVER_UPDATE_TIMER);
 });
 
 app.on('error', function(e){
