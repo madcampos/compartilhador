@@ -1,18 +1,21 @@
 /*jshint node:true, devel:true*/
-/*global querystring*/
 'use strict';
 const PORT = 1338;
 const MAX_CLIENTS = 1024;
 const SERVER_UPDATE_TIMER = 1000 * 60 * 15; //15min
 const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3; //3min
+const REGION = 'default';
+const ADDRESS = require('dns').lookup(require('os').hostname(), function(err, addr){ return addr; });
 
 let http = require('http');
+/*jshint -W079*/
 let console = require('better-console');
+/*jshint +W079*/
 let entity = 'server';
 
 let ownClients = require('./src/peerList'); //TODO: use other structure
 let otherClients = []; //TODO: use better structure
-let servers = []; //TODO: use better structure
+let servers = [];
 
 let localCache = [];
 let externalCache = [];
@@ -34,7 +37,7 @@ app.post('/connect', function(req, res){
 	//TODO: Client connect
 	if (req.body && req.body.address && req.body.files) {
 		let errorMessage = ownClients.add({
-			address: req.body.address, //UPnP Address
+			address: req.body.address,
 			server: req.ip,
 			files: req.body.files
 		});
@@ -63,7 +66,7 @@ app.post('/disconect', function(req, res){
 	}
 });
 
-app.post('/update/:server/:key',function(req, res){
+app.post('/update',function(req, res){
 	//TODO: handle updates from other servers
 });
 
@@ -76,9 +79,12 @@ app.post('/update/:server/:key',function(req, res){
  * one server knows all the others and manteins one list from them but don't have direct access to the files or clients connected to them
  */
 
-function connectToServer(){
-	let msg = querystring.stringify({
-		//TODO: server message to super server
+function connectToSuperServer(){
+	let msg = JSON.stringify({
+		address: `${ADDRESS}:${PORT}`,
+		region: REGION,
+		intent: 'connect',
+		key: 'keystub'
 	});
 
 	let opt = {
@@ -86,7 +92,7 @@ function connectToServer(){
 		port: superServer.port,
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
+			'Content-Type': 'application/json',
 			'Content-Length': msg.length
 		}
 	};
@@ -94,13 +100,17 @@ function connectToServer(){
 	let req = http.request(opt);
 	req.write(msg);
 	req.end();
+	
+	req.on('end', function(){
+		console.info('Super server connection ok.');
+	});
 
 	req.on('error', function(err){
-		console.error('Server connect error: %s', err.message);
+		console.error('Super server connect error: %s', err.message);
 	});
 }
 
-function retriveServerList(){
+function retrieveServerList(){
 	http.get({host: superServer.hostname, port: superServer.port}, function(res){
 		let data = '';
 		res.setEncoding('utf8');
@@ -111,7 +121,11 @@ function retriveServerList(){
 
 		res.on('end', function(){
 			//TODO: make update to servers variable;
-			servers = JSON.parse(data);
+			JSON.parse(data).forEach(function(el){
+				if (!servers.includes(el)) {
+					servers.push(el);
+				}
+			});
 		});
 	}).on('error', function(err){
 		console.error('Server list request error: %s', err.message);

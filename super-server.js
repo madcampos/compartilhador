@@ -2,10 +2,11 @@
 'use strict';
 const PORT = 1337;
 const MAX_SERVERS = 1024;
-const SERVER_UPDATE_TIMER = 1000 * 60 * 15; //15min
-const SERVER_STABILIZATION_TIMER = 1000 * 60 * 3; //3min
 
+/*jshint -W079*/
 let console = require('better-console');
+/*jshint +W079*/
+
 let entity = 'super-server';
 
 let app = require('express')();
@@ -42,11 +43,7 @@ function register(req, res){
 					});
 					break;
 				case 'unregister':
-					errorMessage = servers.remove({
-						'address': req.body.address,
-						'region': req.body.region || '',
-						'metadata': req.body.metadata || []
-					});
+					errorMessage = servers.remove({'address': req.body.address});
 					break;
 				default:
 					errorMessage = 'Operation unknown.';
