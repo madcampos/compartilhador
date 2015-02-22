@@ -17,7 +17,7 @@ app.disable('x-powered-by');
 app.disable('etag');
 
 let superServer = {
-	hostname: 'localhost',
+	hostname: '192.168.5.227',
 	port: 1337
 };
 
@@ -45,6 +45,7 @@ upnp.portMapping({
 }, function(err) {
 	if (err) {
 		console.error('UPnP Port Mapping error: %s', err);
+		listFiles(connectToServer);
 	} else {
 		console.info('UPnP port mapping OK');
 		upnp.externalIp(function(err, ip){
@@ -68,6 +69,7 @@ upnp.portMapping({
 						app.listen(client.localPort, function(){
 							console.info('%s listening to local port at: %s', entity, client.localPort);
 						});
+						//TODO: remove
 						listFiles(connectToServer);
 					}
 				});
@@ -112,10 +114,18 @@ function listFiles(next){
 function connectToServer(){
 	console.info('Starting connection to server...');
 	server = require('url').parse(require('./src/chooseServer')(retrieveServerList()), false);
+	console.log(server);
 	
 	let msg = JSON.stringify({
 		address: `${client.externalIp}:${client.externalPort}`,
-		files: client.fileList
+		files: client.fileList.filter(function(el){
+			return {
+				name: el.name,
+				size: el.size,
+				parts: el.parts,
+				hash: el.hash
+			}
+		})
 	});
 	
 	let opt = {
