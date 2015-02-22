@@ -15,6 +15,8 @@ Executando
 
 Para executar o código é necessário baixar o programa [io.js](https://iojs.org/).
 Após a instalação, descompacte a pasta do projeto e execute os seguintes comandos:
-`$ npm install`
-`$ iojs --harmony --harmony_arrays --harmony_array_includes`**`[nome do arquivo]`**
+```
+$ npm install
+$ iojs --harmony --harmony_arrays --harmony_array_includes [nome do arquivo]
+```
 Substitua `nome do arquivo` por um dos módulos do sistema: cliente, servidor, super-servidor.
